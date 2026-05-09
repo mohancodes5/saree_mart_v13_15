@@ -28,7 +28,13 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-uvs)rc^q_zn0%r&i#-ibl
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1","*"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
+
+# HTTPS sites on Render etc.: set CSRF_TRUSTED_ORIGINS=https://your-app.onrender.com
+# (comma-separated). Avoids 403 on POST/login when DEBUG=False.
+_csrf_raw = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
+if _csrf_raw:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_raw.split(",") if o.strip()]
 
 INSTALLED_APPS = [
     "django.contrib.admin",

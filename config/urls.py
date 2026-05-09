@@ -14,14 +14,15 @@ urlpatterns = [
         r"^dashboard(?:/.*)?$",
         RedirectView.as_view(pattern_name="shop:home", permanent=False),
     ),
-    path("", include("shop.urls")),
 ]
 
+# Uploaded media MUST be registered before the catch-all `path("", include("shop.urls"))`,
+# otherwise `/media/...` is handed to shop.urls and returns 404 (broken product images).
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
-    # Production (e.g. Render): django.conf.urls.static.static() only wires media when DEBUG=True,
-    # so we serve uploads explicitly. For durability across deploys, use a persistent disk or S3.
+    # Production (e.g. Render): static() returns [] when DEBUG=False; serve files explicitly.
+    # For durability across deploys, add a Render Disk or use S3-compatible storage.
     media_url = settings.MEDIA_URL.lstrip("/")
     urlpatterns += [
         re_path(
@@ -30,3 +31,7 @@ else:
             {"document_root": settings.MEDIA_ROOT},
         ),
     ]
+
+urlpatterns += [
+    path("", include("shop.urls")),
+]
