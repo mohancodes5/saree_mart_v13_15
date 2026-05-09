@@ -1,6 +1,5 @@
 import secrets
 from datetime import timedelta
-from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -12,13 +11,13 @@ from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views import View
-from django.views.generic import CreateView, RedirectView, TemplateView
+from django.views.generic import CreateView, TemplateView
 
 from .email_utils import (
     issue_email_verification_token,
     send_verification_email,
 )
-from .forms import CustomerRegistrationForm, VendorRegistrationForm
+from .forms import CustomerRegistrationForm
 from .models import User
 
 
@@ -64,48 +63,11 @@ class CustomerRegisterView(CreateView):
         return response
 
 
-class VendorRegisterView(CreateView):
-    model = User
-    form_class = VendorRegistrationForm
-    template_name = "accounts/vendor_register.html"
-    success_url = reverse_lazy("dashboard:home")
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        from django.contrib.auth import login
-
-        user = self.object
-        issue_email_verification_token(user)
-        ok, api_msg = send_verification_email(self.request, user)
-        if ok:
-            messages.success(
-                self.request,
-                "Account created. Check your email and click the link to verify your address.",
-            )
-        elif api_msg:
-            messages.warning(self.request, api_msg)
-        elif not _resend_api_key_configured():
-            messages.warning(
-                self.request,
-                "Account created, but we could not send a verification email "
-                "(add RESEND_API_KEY to `.env`). You can resend from your profile later.",
-            )
-        else:
-            messages.warning(
-                self.request,
-                "Account created, but we could not send the verification email. "
-                "Try again from your profile.",
-            )
-        login(self.request, user)
-        return response
-
-
 class CustomerLoginView(auth_views.LoginView):
     """
     One login form for everyone.
-    - **Users** (shoppers): open Login or Sign up — after login, home / checkout `next`.
-    - **Admin** (is_staff): use the Admin link or `/accounts/login/?next=/manage/`.
-    Sellers (is_vendor) who sign in without `next` go to the seller dashboard.
+    - Shoppers: Sign in / Sign up, then home or `next` (e.g. checkout).
+    - Staff: use **Admin** or `/accounts/login/?next=/manage/`.
     """
 
     template_name = "accounts/login.html"
@@ -128,22 +90,11 @@ class CustomerLoginView(auth_views.LoginView):
         return redirect_to or self.get_default_redirect_url()
 
     def get_default_redirect_url(self):
-        """When `next` is absent: staff → admin panel, sellers → dashboard, others → shop."""
+        """When `next` is absent: staff → store admin panel; everyone else → shop."""
         user = self.request.user
         if user.is_staff:
             return reverse("staff_admin:home")
-        if getattr(user, "is_vendor", False):
-            return reverse("dashboard:home")
         return reverse("shop:home")
-
-
-class VendorLoginRedirectView(RedirectView):
-    """Old seller URL -> same login page, then redirect to dashboard."""
-
-    permanent = False
-
-    def get_redirect_url(self, *args, **kwargs):
-        return f"{reverse('accounts:login')}?{urlencode({'next': reverse('dashboard:home')})}"
 
 
 class LogoutView(View):

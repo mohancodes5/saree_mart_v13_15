@@ -9,7 +9,11 @@ urlpatterns = [
     path("admin/", RedirectView.as_view(url="/manage/", permanent=False)),
     path("manage/", include("staff_admin.urls")),
     path("accounts/", include("accounts.urls")),
-    path("dashboard/", include("dashboard.urls")),
+    # Seller dashboard disabled — catalogue is managed via /manage/ only.
+    re_path(
+        r"^dashboard(?:/.*)?$",
+        RedirectView.as_view(pattern_name="shop:home", permanent=False),
+    ),
     path("", include("shop.urls")),
 ]
 

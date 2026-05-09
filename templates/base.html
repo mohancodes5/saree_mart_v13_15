@@ -189,9 +189,6 @@
             {% if user.is_staff %}
               <li class="nav-item"><a class="nav-link fw-semibold text-danger" href="{% url 'staff_admin:home' %}">Admin</a></li>
             {% endif %}
-            {% if user.is_vendor or user.is_superuser %}
-              <li class="nav-item"><a class="nav-link text-primary" href="{% url 'dashboard:home' %}">Seller</a></li>
-            {% endif %}
             <li class="nav-item"><a class="nav-link" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right fs-5"></i></a></li>
           {% else %}
             <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Log In</a></li>

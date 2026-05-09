@@ -16,6 +16,26 @@
     .sticky-buy { position: static; border: 0; box-shadow: none; padding: 0; background: transparent; }
     .pb-detail-mobile { padding-bottom: 0 !important; }
   }
+  /* Full-bleed hero image inside carousel + ratio (fixes tiny thumbnail bug) */
+  #productCarousel .carousel-inner {
+    border-radius: inherit;
+  }
+  #productCarousel .carousel-item {
+    width: 100%;
+  }
+  #productCarousel .carousel-item .ratio {
+    width: 100%;
+    max-width: 100%;
+  }
+  #productCarousel .carousel-item .ratio > img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 {% endblock %}
 {% block content %}
 <div class="container py-3 pb-detail-mobile" style="padding-bottom: 5.5rem;">
@@ -26,7 +46,7 @@
           {% for im in product.images.all %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
               <div class="ratio ratio-3x4 bg-light">
-                <img src="{{ im.image.url }}" class="d-block w-100 object-fit-cover" alt="{{ im.alt_text|default:product.name }}">
+                <img src="{{ im.image.url }}" alt="{{ im.alt_text|default:product.name }}" width="800" height="1067" decoding="async" fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}">
               </div>
             </div>
           {% empty %}
