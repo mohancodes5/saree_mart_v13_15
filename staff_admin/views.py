@@ -111,7 +111,9 @@ class StaffProductCreateView(StaffRequiredMixin, CreateView):
     success_url = reverse_lazy("staff_admin:products")
 
     def form_valid(self, form):
-        self.object = form.save()
+        self.object = form.save(commit=False)
+        self.object.vendor = self.request.user
+        self.object.save()
         self._save_images(self.object)
         messages.success(self.request, "Saree listing published.")
         return HttpResponseRedirect(self.get_success_url())

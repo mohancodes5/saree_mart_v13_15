@@ -30,6 +30,10 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
 
+# Reverse proxy (Render, Railway, etc.): trust TLS + host from proxy headers.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
 # HTTPS sites on Render etc.: set CSRF_TRUSTED_ORIGINS=https://your-app.onrender.com
 # (comma-separated). Avoids 403 on POST/login when DEBUG=False.
 _csrf_raw = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()

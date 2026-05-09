@@ -2,7 +2,7 @@
 {% block title %}{% if object %}Edit{% else %}Post{% endif %} saree{% endblock %}
 {% block content %}
 <h1 class="h4 mb-2">{% if object %}Edit saree{% else %}Post a new saree{% endif %}</h1>
-<p class="text-muted small mb-4">Choose the seller account, price, and photos. This is your site admin catalogue (not Django admin).</p>
+<p class="text-muted small mb-4">Set price, details, and photos. The listing is stored under your admin account (not Django admin).</p>
 <div class="bg-white rounded-3 border p-4 shadow-sm" style="max-width: 720px;">
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}

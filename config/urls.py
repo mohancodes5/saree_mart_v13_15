@@ -21,12 +21,12 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
-    # Production (e.g. Render): static() returns [] when DEBUG=False; serve files explicitly.
-    # For durability across deploys, add a Render Disk or use S3-compatible storage.
-    media_url = settings.MEDIA_URL.lstrip("/")
+    # Production (e.g. Render): static() returns [] when DEBUG=False; serve uploads explicitly.
+    # Prefix must match settings.MEDIA_URL (default "/media/").
+    _media_prefix = settings.MEDIA_URL.strip("/")
     urlpatterns += [
-        re_path(
-            rf"^{media_url}(?P<path>.*)$",
+        path(
+            f"{_media_prefix}/<path:path>",
             serve,
             {"document_root": settings.MEDIA_ROOT},
         ),
