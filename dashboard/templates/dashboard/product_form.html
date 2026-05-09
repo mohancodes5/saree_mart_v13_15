@@ -1,0 +1,35 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} product{% endblock %}
+{% block content %}
+<h1 class="h4 mb-4">{% if object %}Edit listing{% else %}New saree listing{% endif %}</h1>
+<div class="card card-dash p-4" style="max-width: 720px;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+        {{ field }}
+        {% if field.name == 'slug' %}<div class="form-text">Leave blank to auto-generate from name.</div>{% endif %}
+      </div>
+    {% endfor %}
+    <div class="mb-3">
+      <label class="form-label">Product images</label>
+      <input type="file" name="images" class="form-control" multiple accept="image/*">
+      <div class="form-text">Upload one or more images. {% if object %}New files are appended.{% endif %}</div>
+    </div>
+    {% if object and object.images.all %}
+      <div class="mb-3">
+        <div class="small fw-semibold mb-2">Current images</div>
+        <div class="d-flex flex-wrap gap-2">
+          {% for im in object.images.all %}
+            <img src="{{ im.image.url }}" alt="" width="72" height="72" class="rounded border object-fit-cover">
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    <button type="submit" class="btn text-white rounded-pill px-4" style="background: linear-gradient(90deg,#e11d74,#7c3aed);">Save</button>
+    <a href="{% url 'dashboard:stock' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

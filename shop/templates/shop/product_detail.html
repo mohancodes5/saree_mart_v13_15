@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — SareeMart{% endblock %}
+{% block extra_css %}
+  .sticky-buy {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1030;
+    background: #fff;
+    border-top: 1px solid #eee;
+    padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 20px rgba(0,0,0,.06);
+  }
+  @media (min-width: 992px) {
+    .sticky-buy { position: static; border: 0; box-shadow: none; padding: 0; background: transparent; }
+    .pb-detail-mobile { padding-bottom: 0 !important; }
+  }
+{% endblock %}
+{% block content %}
+<div class="container py-3 pb-detail-mobile" style="padding-bottom: 5.5rem;">
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div id="productCarousel" class="carousel slide rounded-4 overflow-hidden border bg-white">
+        <div class="carousel-inner">
+          {% for im in product.images.all %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <div class="ratio ratio-3x4 bg-light">
+                <img src="{{ im.image.url }}" class="d-block w-100 object-fit-cover" alt="{{ im.alt_text|default:product.name }}">
+              </div>
+            </div>
+          {% empty %}
+            <div class="ratio ratio-3x4 bg-light d-flex align-items-center justify-content-center text-muted">No images yet</div>
+          {% endfor %}
+        </div>
+        {% if product.images.count > 1 %}
+          <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        {% endif %}
+      </div>
+      <div class="d-flex gap-2 flex-wrap mt-2">
+        {% for im in product.images.all %}
+          <img src="{{ im.image.url }}" alt="" class="rounded border" style="width: 56px; height: 56px; object-fit: cover;" data-bs-target="#productCarousel" data-bs-slide-to="{{ forloop.counter0 }}">
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <p class="small text-muted mb-1">{{ product.category.name }}</p>
+      <h1 class="h4 fw-bold mb-3">{{ product.name }}</h1>
+      <div class="d-flex align-items-baseline gap-2 mb-3">
+        <span class="h5 mb-0">₹{{ product.effective_price }}</span>
+        {% if product.discounted_price and product.discounted_price < product.price %}
+          <span class="text-muted text-decoration-line-through">₹{{ product.price }}</span>
+          <span class="text-success small fw-semibold">{{ product.discount_percent }}% off</span>
+        {% endif %}
+      </div>
+      <span class="badge badge-free mb-3">Free Delivery</span>
+      <p class="text-muted small lh-lg">{{ product.description|linebreaksbr }}</p>
+      <p class="small mb-1"><strong>Stock:</strong> {{ product.stock_quantity }} available</p>
+
+      <form id="optsForm" method="post" action="{% url 'shop:add_to_cart' %}" class="visually-hidden" aria-hidden="true">
+        {% csrf_token %}
+        {{ add_form.product_id }}
+        {{ add_form.quantity }}
+        <input type="hidden" name="color" id="inpColor" value="{{ add_form.color.value|default:'' }}">
+        <input type="hidden" name="size" id="inpSize" value="{{ add_form.size.value|default:'' }}">
+      </form>
+
+      {% if product.display_colors %}
+        <div class="mt-3">
+          <div class="small fw-semibold mb-2">Color</div>
+          <div class="d-flex flex-wrap gap-2" id="colorPills">
+            {% for c in product.display_colors %}
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill color-opt {% if forloop.first %}active border-dark{% endif %}" data-value="{{ c }}">{{ c }}</button>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+      {% if product.display_sizes %}
+        <div class="mt-3">
+          <div class="small fw-semibold mb-2">Size</div>
+          <div class="d-flex flex-wrap gap-2" id="sizePills">
+            {% for s in product.display_sizes %}
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill size-opt {% if forloop.first %}active border-dark{% endif %}" data-value="{{ s }}">{{ s }}</button>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="d-none d-lg-flex gap-2 mt-4">
+        <button type="submit" form="optsForm" name="next" value="" class="btn btn-outline-dark rounded-pill px-4">Add to cart</button>
+        <button type="submit" formaction="{% url 'shop:buy_now' %}" form="optsForm" class="btn btn-ms-primary rounded-pill px-4">Buy now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sticky-buy d-lg-none">
+  <div class="container d-flex gap-2">
+    <button type="submit" form="optsForm" class="btn btn-outline-dark flex-grow-1 rounded-pill">Add to cart</button>
+    <button type="submit" formaction="{% url 'shop:buy_now' %}" form="optsForm" class="btn btn-ms-primary flex-grow-1 rounded-pill">Buy now</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  var form = document.getElementById('optsForm');
+  if (!form) return;
+  var cInp = document.getElementById('inpColor');
+  var sInp = document.getElementById('inpSize');
+  document.querySelectorAll('.color-opt').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.color-opt').forEach(function(b) { b.classList.remove('active','border-dark'); });
+      btn.classList.add('active','border-dark');
+      if (cInp) cInp.value = btn.dataset.value || '';
+    });
+  });
+  document.querySelectorAll('.size-opt').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.size-opt').forEach(function(b) { b.classList.remove('active','border-dark'); });
+      btn.classList.add('active','border-dark');
+      if (sInp) sInp.value = btn.dataset.value || '';
+    });
+  });
+})();
+</script>
+{% endblock %}

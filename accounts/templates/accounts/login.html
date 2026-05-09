@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Sign in — SareeMart{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 440px;">
+  <h1 class="h4 fw-bold mb-2">Sign in</h1>
+  {% with next=request.GET.next|default:"" %}
+  <p class="small text-muted mb-3">
+    {% if next %}
+      {% if '/manage' in next %}Administrator sign-in{% else %}Continue where you left off{% endif %}
+    {% else %}
+      Pick <strong>User login</strong> for shopping, or <strong>Admin login</strong> for the store dashboard (staff accounts only).
+    {% endif %}
+  </p>
+
+  <div class="d-flex gap-2 mb-4">
+    <a href="{% url 'accounts:login' %}" class="btn btn-sm flex-grow-1 rounded-pill {% if not next %}btn-dark{% else %}btn-outline-secondary{% endif %}">User login</a>
+    <a href="{% url 'accounts:login' %}?next=/manage/" class="btn btn-sm flex-grow-1 rounded-pill {% if '/manage' in next %}btn-dark{% else %}btn-outline-secondary{% endif %}">Admin login</a>
+  </div>
+  {% endwith %}
+
+  <div class="bg-white rounded-4 shadow-sm p-4 border">
+    <form method="post" action="">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" required autofocus value="{{ form.username.value|default:'' }}" autocomplete="username">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" required autocomplete="current-password">
+      </div>
+      <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+      <button type="submit" class="btn btn-ms-primary w-100 py-2 rounded-pill">Continue</button>
+    </form>
+    <p class="small text-muted mt-3 mb-0">New shopper? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+  </div>
+</div>
+{% endblock %}

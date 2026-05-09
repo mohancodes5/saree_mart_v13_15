@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}My orders{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+  <h1 class="h4 fw-bold mb-4">My orders</h1>
+  {% for o in orders %}
+    <div class="bg-white rounded-4 border p-4 mb-3">
+      <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+        <span class="fw-semibold">Order #{{ o.id }}</span>
+        <span class="badge rounded-pill bg-light text-dark border">{{ o.get_status_display }}</span>
+      </div>
+      <div class="small text-muted mb-2">{{ o.created_at }} · ₹{{ o.total_price }}</div>
+      <ul class="list-unstyled small mb-0">
+        {% for it in o.items.all %}
+          <li>{{ it.product.name }} × {{ it.quantity }} — ₹{{ it.line_total }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% empty %}
+    <p class="text-muted">You have no orders yet.</p>
+    <a href="{% url 'shop:home' %}" class="btn btn-ms-primary rounded-pill">Shop now</a>
+  {% endfor %}
+</div>
+{% endblock %}

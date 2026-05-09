@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 560px;">
+  <h1 class="h4 fw-bold mb-3">Your profile</h1>
+  {% if not user.email_verified %}
+  <div class="alert alert-warning border-0 rounded-4 mb-3" role="alert">
+    <strong>Verify your email</strong> to place orders. Check your inbox for the link we sent, or request a new one below.
+    <form method="post" action="{% url 'accounts:resend_verification' %}" class="mt-2 mb-0">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-outline-dark rounded-pill">Resend verification email</button>
+    </form>
+  </div>
+  {% endif %}
+  <div class="bg-white rounded-4 shadow-sm p-4 border">
+    <p class="mb-1"><strong>Username:</strong> {{ user.username }}</p>
+    <p class="mb-1"><strong>Email:</strong> {{ user.email|default:"—" }}{% if user.email_verified %} <span class="badge text-bg-success ms-1">Verified</span>{% endif %}</p>
+    <p class="mb-0"><strong>Phone:</strong> {{ user.phone|default:"—" }}</p>
+  </div>
+</div>
+{% endblock %}

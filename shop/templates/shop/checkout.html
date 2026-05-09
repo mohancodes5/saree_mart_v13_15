@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Checkout — SareeMart{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 720px;">
+  <h1 class="h4 fw-bold mb-4">Checkout</h1>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 small">
+    <div class="text-center flex-fill">
+      <span class="badge rounded-pill text-bg-dark">1</span>
+      <div class="mt-1">Cart</div>
+    </div>
+    <div class="flex-fill border-top mx-2"></div>
+    <div class="text-center flex-fill text-muted">
+      <span class="badge rounded-pill bg-secondary">2</span>
+      <div class="mt-1 fw-semibold text-dark">Shipping</div>
+    </div>
+    <div class="flex-fill border-top mx-2"></div>
+    <div class="text-center flex-fill text-muted">
+      <span class="badge rounded-pill bg-light text-dark border">3</span>
+      <div class="mt-1">Done</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-4 border p-4">
+    <h2 class="h6 fw-bold mb-3">Shipping details</h2>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field.errors }}
+          {{ field }}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-ms-primary rounded-pill px-4 py-2">Place order</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

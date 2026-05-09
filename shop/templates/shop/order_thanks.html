@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Thank you{% endblock %}
+{% block content %}
+<div class="container py-5 text-center" style="max-width: 560px;">
+  <div class="bg-white rounded-4 border p-5">
+    <div class="display-6 mb-3">✓</div>
+    <h1 class="h4 fw-bold mb-2">Order placed</h1>
+    {% if order %}
+      <p class="text-muted mb-2">Order #{{ order.id }} · ₹{{ order.total_price }}</p>
+      <p class="small text-muted mb-4">Status: {{ order.get_status_display }}</p>
+    {% endif %}
+    <a href="{% url 'shop:my_orders' %}" class="btn btn-outline-dark rounded-pill me-2">My orders</a>
+    <a href="{% url 'shop:home' %}" class="btn btn-ms-primary rounded-pill">Keep shopping</a>
+  </div>
+</div>
+{% endblock %}

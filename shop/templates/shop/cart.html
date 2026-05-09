@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Cart — SareeMart{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 960px;">
+  <h1 class="h4 fw-bold mb-4">Shopping cart</h1>
+  {% if cart_empty %}
+    <div class="bg-white rounded-4 border p-5 text-center text-muted">
+      <p class="mb-3">Your cart is empty.</p>
+      <a href="{% url 'shop:home' %}" class="btn btn-ms-primary rounded-pill">Browse sarees</a>
+    </div>
+  {% else %}
+    <div class="row g-4">
+      <div class="col-lg-8">
+        {% for row in cart_items %}
+          <div class="bg-white rounded-4 border p-3 mb-3 d-flex gap-3">
+            <a href="{{ row.product.get_absolute_url }}" class="ratio ratio-1x1 bg-light rounded-3 overflow-hidden" style="width: 96px; max-height: 128px;">
+              {% with img=row.product.images.first %}
+                {% if img %}
+                  <img src="{{ img.image.url }}" alt="" class="object-fit-cover w-100 h-100">
+                {% else %}
+                  <span class="d-flex align-items-center justify-content-center small text-muted">No img</span>
+                {% endif %}
+              {% endwith %}
+            </a>
+            <div class="flex-grow-1">
+              <a href="{{ row.product.get_absolute_url }}" class="fw-semibold text-dark text-decoration-none">{{ row.product.name }}</a>
+              {% if row.color or row.size %}
+                <div class="small text-muted">{{ row.color }}{% if row.color and row.size %} · {% endif %}{{ row.size }}</div>
+              {% endif %}
+              <div class="mt-2 fw-bold">₹{{ row.line_total }} <span class="small text-muted fw-normal">(₹{{ row.product.effective_price }} × {{ row.qty }})</span></div>
+              <form method="post" action="{% url 'shop:cart_update' %}" class="d-inline-flex align-items-center gap-2 mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ row.product.id }}">
+                <label class="small mb-0">Qty</label>
+                <input type="number" name="quantity" value="{{ row.qty }}" min="1" max="{{ row.product.stock_quantity }}" class="form-control form-control-sm" style="width: 72px;">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Update</button>
+              </form>
+              <form method="post" action="{% url 'shop:cart_remove' %}" class="d-inline ms-2">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ row.product.id }}">
+                <button type="submit" class="btn btn-link btn-sm text-danger p-0">Remove</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="col-lg-4">
+        <div class="bg-white rounded-4 border p-4 sticky-top" style="top: 5rem;">
+          <div class="d-flex justify-content-between mb-2"><span>Subtotal</span><span class="fw-bold">₹{{ subtotal }}</span></div>
+          <div class="small text-success mb-3">Free delivery on this order</div>
+          {% if user.is_authenticated %}
+            <a href="{% url 'shop:checkout' %}" class="btn btn-ms-primary w-100 rounded-pill py-2">Proceed to checkout</a>
+          {% else %}
+            <a href="{% url 'accounts:login' %}?next={% url 'shop:checkout' %}" class="btn btn-ms-primary w-100 rounded-pill py-2">Login to checkout</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

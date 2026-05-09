@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Vendor registration{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 440px;">
+  <h1 class="h4 fw-bold mb-4">Become a seller</h1>
+  <div class="bg-white rounded-4 shadow-sm p-4 border">
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+          {{ field }}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-ms-primary w-100 py-2 rounded-pill">Create seller account</button>
+    </form>
+    <p class="small text-muted mt-3 mb-0"><a href="{% url 'accounts:vendor_login' %}">Vendor login</a></p>
+  </div>
+</div>
+{% endblock %}

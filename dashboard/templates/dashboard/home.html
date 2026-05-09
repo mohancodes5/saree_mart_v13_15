@@ -1,0 +1,20 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-6 col-xl-4">
+    <div class="card card-dash p-4">
+      <div class="text-muted small">Your listings</div>
+      <div class="display-6 fw-bold">{{ product_count }}</div>
+      <a href="{% url 'dashboard:stock' %}" class="small text-decoration-none">Manage stock →</a>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-4">
+    <div class="card card-dash p-4">
+      <div class="text-muted small">Open orders</div>
+      <div class="display-6 fw-bold">{{ open_orders }}</div>
+      <a href="{% url 'dashboard:orders' %}" class="small text-decoration-none">View orders →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
